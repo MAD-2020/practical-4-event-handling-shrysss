@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import java.util.Random;
 
+import static android.content.ContentValues.TAG;
+
 public class MainActivity extends AppCompatActivity {
 
     /* Hint
@@ -22,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
         - The function nextLevel() launches the new advanced page.
         - Feel free to modify the function to suit your program.
     */
+    int count = 0;
+    int advancedScore = 10;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +40,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
+        TextView score = (TextView)findViewById(R.id.score);
         setNewMole();
+        score.setText("0");
+        gameStart();
         Log.v(TAG, "Starting GUI!");
     }
     @Override
@@ -51,11 +59,6 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void doCheck(Button checkButton) {
-        /* Checks for hit or miss and if user qualify for advanced page.
-            Triggers nextLevelQuery().
-         */
-    }
 
     private void nextLevelQuery(){
         /*
@@ -64,14 +67,146 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, "User decline!");
         Log.v(TAG, "Advance option given to user!");
         belongs here*/
+        AlertDialog.Builder levelQuery = new AlertDialog.Builder(this);
+
+        levelQuery.setTitle("Warning! Insane Whack-A-Mole incoming!");
+        levelQuery.setMessage("Would you like to advance to advanced mode?");
+        levelQuery.setCancelable(false);
+        levelQuery.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                nextLevel();
+            }
+        });
+        levelQuery.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                gameStart();
+                advancedScore += 10;
+            }
+        });
+        levelQuery.show();
     }
 
     private void nextLevel(){
         /* Launch advanced page */
+        Intent startNextLevel = new Intent(getApplicationContext(), Main2Activity.class);
+        startNextLevel.putExtra("score",advancedScore);
+        startActivity(startNextLevel);
     }
 
-    private void setNewMole() {
+    public void setNewMole()
+    {
+        Button left = (Button)findViewById(R.id.left);
+        left.setText("O");
+        Button middle = (Button)findViewById(R.id.middle);
+        middle.setText("O");
+        Button right = (Button)findViewById(R.id.right);
+        right.setText("O");
+        TextView score = (TextView)findViewById(R.id.score);
+
         Random ran = new Random();
         int randomLocation = ran.nextInt(3);
+        if (randomLocation == 0){
+            left.setText("*");
+        }
+        else if(randomLocation == 1){
+            middle.setText("*");
+        }
+        else{
+            right.setText("*");
+        }
+
     }
+    public void gameStart()
+    {
+        final Button left = (Button)findViewById(R.id.left);
+        final Button middle = (Button)findViewById(R.id.middle);
+        final Button right = (Button)findViewById(R.id.right);
+        final TextView score = (TextView)findViewById(R.id.score);
+
+
+
+        left.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.v(TAG, "gameStart:button pressed");
+                if(left.getText() == "*"){
+                    Log.v(TAG, "gameStart: left correct");
+                    count += 1;
+                }
+                else{
+                    Log.v(TAG, "gameStart: left wrong");
+                    count -= 1;
+                }
+                score.setText(Integer.toString(count));
+
+
+                if (count == advancedScore){
+                    nextLevelQuery();
+
+                }
+                setNewMole();
+
+
+            }
+        });
+
+
+
+        middle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v(TAG, "gameStart:middle button pressed");
+                if(middle.getText() == "*"){
+                    Log.v(TAG, "gameStart:middle correct");
+                    count += 1;
+                }
+                else{
+                    Log.v(TAG, "gameStart:middle wrong");
+                    count -= 1;
+                }
+                score.setText(Integer.toString(count));
+
+
+                if (count == advancedScore){
+                    nextLevelQuery();
+
+                }
+
+                setNewMole();
+
+            }
+        });
+
+
+        right.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v(TAG, "gameStart:right pressed");
+                if(right.getText() == "*"){
+                    Log.v(TAG, "gameStart: right correct");
+                    count += 1;
+                }
+                else{
+                    Log.v(TAG, "gameStart:right wrong");
+                    count -= 1;
+                }
+
+
+                score.setText(Integer.toString(count));
+
+
+                if (count == advancedScore){
+                    nextLevelQuery();
+
+                }
+                setNewMole();
+
+            }
+        });
+
+    }
+
 }
